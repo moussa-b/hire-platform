@@ -1,6 +1,6 @@
 {
   "name": "hire-platform",
-  "version": "2025.12.06.02",
+  "version": "2025.12.06.03",
   "private": true,
   "scripts": {
     "dev": "next dev",
