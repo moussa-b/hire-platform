@@ -179,7 +179,7 @@ export default function TemplatesPage() {
                       </p>
                     </div>
                     <div className="space-y-2">
-                      <Label>Email Body (HTML)</Label>
+                      <Label>Email Body (HTML - CKEditor to be integrated to improve UX)</Label>
                       <Textarea
                         value={currentBody}
                         onChange={(e) => {
