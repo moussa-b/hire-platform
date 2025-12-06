@@ -70,10 +70,10 @@ export async function getClient() {
   }, 5000);
   
   // Monkey patch the query method to log the last query
-  client.query = (...args: any[]) => {
+  client.query = ((...args: Parameters<typeof originalQuery>) => {
     lastQuery = args;
-    return originalQuery(...args);
-  };
+    return originalQuery(...(args as Parameters<typeof originalQuery>));
+  }) as typeof originalQuery;
   
   client.release = () => {
     clearTimeout(timeout);
