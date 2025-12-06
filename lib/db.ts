@@ -28,9 +28,31 @@ if (!connectionString) {
   throw new Error('DATABASE_URL or PostgreSQL connection details must be provided');
 }
 
+// Determine SSL configuration
+// Allow explicit control via POSTGRES_SSL env var, or disable for local/internal connections
+const getSslConfig = (): boolean | { rejectUnauthorized: boolean } => {
+  // Explicit SSL control via environment variable
+  if (process.env.POSTGRES_SSL !== undefined) {
+    const sslEnabled = process.env.POSTGRES_SSL === 'true' || process.env.POSTGRES_SSL === '1';
+    return sslEnabled ? { rejectUnauthorized: false } : false;
+  }
+  
+  // Check if connecting to localhost or internal Docker network (no SSL needed)
+  const host = process.env.POSTGRES_HOST || 'localhost';
+  const isLocalConnection = host === 'localhost' || host === '127.0.0.1' || host === 'postgres' || host.includes('172.') || host.includes('192.168.');
+  
+  // Disable SSL for local/internal connections
+  if (isLocalConnection) {
+    return false;
+  }
+  
+  // For external connections in production, use SSL
+  return process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false;
+};
+
 const pool = new Pool({
   connectionString: connectionString,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  ssl: getSslConfig(),
 });
 
 // Test connection
