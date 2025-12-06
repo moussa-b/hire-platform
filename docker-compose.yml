@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: hire-platform-db
+    environment:
+      POSTGRES_USER: hire_user
+      POSTGRES_PASSWORD: hire_password
+      POSTGRES_DB: hire_platform
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hire_user -d hire_platform"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+#  app:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    container_name: hire-platform-app
+#    environment:
+#      DATABASE_URL: postgresql://hire_user:hire_password@postgres:5432/hire_platform
+#      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+#      MAILGUN_API_KEY: ${MAILGUN_API_KEY:-}
+#      MAILGUN_DOMAIN: ${MAILGUN_DOMAIN:-}
+#      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+#      NODE_ENV: production
+#    ports:
+#      - "3000:3000"
+#    volumes:
+#      - ./uploads:/app/uploads
+#    depends_on:
+#      postgres:
+#        condition: service_healthy
+#    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
