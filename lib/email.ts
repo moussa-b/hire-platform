@@ -2,11 +2,18 @@
 import formData from 'form-data';
 import Mailgun from 'mailgun.js';
 
-const mailgun = new Mailgun(formData);
-const mg = mailgun.client({
-  username: 'api',
-  key: process.env.MAILGUN_API_KEY || '',
-});
+let mg: any = null;
+
+const getMailgunClient = () => {
+  if (!mg && process.env.MAILGUN_API_KEY) {
+    const mailgun = new Mailgun(formData);
+    mg = mailgun.client({
+      username: 'api',
+      key: process.env.MAILGUN_API_KEY,
+    });
+  }
+  return mg;
+};
 
 const MAILGUN_DOMAIN = process.env.MAILGUN_DOMAIN || '';
 
@@ -23,6 +30,11 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
   }
 
   try {
+    const client = getMailgunClient();
+    if (!client) {
+      return false;
+    }
+
     const messageData = {
       from: options.from || `Hiring Platform <noreply@${MAILGUN_DOMAIN}>`,
       to: options.to,
@@ -30,7 +42,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
       html: options.html,
     };
 
-    await mg.messages.create(MAILGUN_DOMAIN, messageData);
+    await client.messages.create(MAILGUN_DOMAIN, messageData);
     return true;
   } catch (error) {
     console.error('Error sending email:', error);
