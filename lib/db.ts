@@ -55,19 +55,24 @@ export async function query(text: string, params?: any[]) {
 
 export async function getClient() {
   const client = await pool.connect();
-  const query = client.query.bind(client);
+  const originalQuery = client.query.bind(client);
   const release = client.release.bind(client);
+  
+  // Track the last query for debugging
+  let lastQuery: any[] | null = null;
   
   // Set a timeout of 5 seconds, after which we will log this client's last query
   const timeout = setTimeout(() => {
     console.error('A client has been checked out for more than 5 seconds!');
-    console.error(`The last executed query on this client was: ${client.lastQuery}`);
+    if (lastQuery) {
+      console.error(`The last executed query on this client was:`, lastQuery);
+    }
   }, 5000);
   
   // Monkey patch the query method to log the last query
   client.query = (...args: any[]) => {
-    client.lastQuery = args;
-    return query(...args);
+    lastQuery = args;
+    return originalQuery(...args);
   };
   
   client.release = () => {

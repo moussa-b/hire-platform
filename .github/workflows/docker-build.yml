@@ -39,7 +39,7 @@ jobs:
           # Parse version (YYYY.MM.DD.XX)
           IFS='.' read -r YEAR MONTH DAY BUILD <<< "$CURRENT_VERSION"
           
-          # Get current date
+          # Get current date in YYYY.MM.DD format
           CURRENT_DATE=$(date +%Y.%m.%d)
           VERSION_DATE="$YEAR.$MONTH.$DAY"
           
@@ -58,7 +58,8 @@ jobs:
       - name: Update package.json version
         run: |
           NEW_VERSION="${{ steps.increment.outputs.new }}"
-          npm version $NEW_VERSION --no-git-tag-version
+          # Use node to directly update package.json (npm version doesn't support custom format)
+          node -e "const fs = require('fs'); const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); pkg.version = '$NEW_VERSION'; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');"
 
       - name: Commit version bump
         run: |

@@ -19,26 +19,26 @@ services:
       timeout: 5s
       retries: 5
 
-#  app:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    container_name: hire-platform-app
-#    environment:
-#      DATABASE_URL: postgresql://hire_user:hire_password@postgres:5432/hire_platform
-#      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
-#      MAILGUN_API_KEY: ${MAILGUN_API_KEY:-}
-#      MAILGUN_DOMAIN: ${MAILGUN_DOMAIN:-}
-#      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
-#      NODE_ENV: production
-#    ports:
-#      - "3000:3000"
-#    volumes:
-#      - ./uploads:/app/uploads
-#    depends_on:
-#      postgres:
-#        condition: service_healthy
-#    restart: unless-stopped
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hire-platform-app
+    environment:
+      DATABASE_URL: postgresql://hire_user:hire_password@postgres:5432/hire_platform
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      MAILGUN_API_KEY: ${MAILGUN_API_KEY:-}
+      MAILGUN_DOMAIN: ${MAILGUN_DOMAIN:-}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   postgres_data:
